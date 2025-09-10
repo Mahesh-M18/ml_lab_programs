@@ -1,0 +1,47 @@
+import numpy as np
+import pandas as pd
+
+# Load data from CSV
+data = pd.read_csv("lab_2.csv")
+
+# Separate concept features from target
+concepts = np.array(data.iloc[:, 0:-1])
+print(concepts)
+target = np.array(data.iloc[:, -1])
+print(target)
+def learn(concepts, target):
+    ''' Candidate Elimination Algorithm '''
+    specific_h = concepts[0].copy()
+    general_h = [["?" for _ in range(len(specific_h))] for _ in range(len(specific_h))]
+
+    print("Initial Specific_h:", specific_h)
+    print("Initial General_h:", general_h)
+
+    for i, h in enumerate(concepts):
+        if target[i] == "Yes":
+            for x in range(len(specific_h)):
+                if h[x] != specific_h[x]:
+                    specific_h[x] = '?'
+                    general_h[x][x] = '?'
+        elif target[i] == "No":
+            for x in range(len(specific_h)):
+                if h[x] != specific_h[x]:
+                    general_h[x][x] = specific_h[x]
+                else:
+                    general_h[x][x] = '?'
+
+        print(f"\nStep {i+1}:")
+        print("Specific_h:", specific_h)
+        print("General_h:", general_h)
+
+    # Remove overly general hypotheses
+    general_h = [gh for gh in general_h if gh != ['?' for _ in range(len(specific_h))]]
+
+    return specific_h, general_h
+
+# Run the algorithm
+s_final, g_final = learn(concepts, target)
+
+# Print the final hypotheses
+print("\nFinal Specific_h:", s_final)
+print("Final General_h:", g_final)
